@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pip/pip.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'mobile_player_controls.dart';
 import 'pc_player_controls.dart';
 import 'video_player_surface.dart';
@@ -214,6 +215,20 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
     }
   }
 
+  /// 播放期间保持屏幕常亮（Android: FLAG_KEEP_SCREEN_ON；iOS: isIdleTimerDisabled），
+  /// 暂停或销毁播放器时恢复系统默认的息屏策略。失败只打日志，不影响播放。
+  Future<void> _setKeepScreenOn(bool enabled) async {
+    try {
+      if (enabled) {
+        await WakelockPlus.enable();
+      } else {
+        await WakelockPlus.disable();
+      }
+    } catch (error) {
+      debugPrint('VideoPlayerWidget: failed to toggle wakelock $error');
+    }
+  }
+
   void _setupPlayerListeners() {
     if (_player == null) {
       return;
@@ -235,6 +250,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
 
     _playingSubscription = _player!.stream.playing.listen((playing) {
       if (!mounted) return;
+      // 播放中保持屏幕常亮，暂停时交还系统息屏策略
+      unawaited(_setKeepScreenOn(playing));
       if (!playing) {
         setState(() {
           _hasCompleted = false;
@@ -438,6 +455,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
     await _player?.dispose();
     _player = null;
     _videoController = null;
+    unawaited(_setKeepScreenOn(false));
   }
 
   @override
