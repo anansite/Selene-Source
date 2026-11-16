@@ -8,7 +8,6 @@ import '../services/api_service.dart';
 import '../services/douban_service.dart';
 import '../utils/image_url.dart';
 import '../utils/font_utils.dart';
-import 'shimmer_effect.dart';
 
 /// 首页首屏轮播 Banner 组件
 class HomeCarouselBanner extends StatefulWidget {
@@ -22,7 +21,7 @@ class HomeCarouselBanner extends StatefulWidget {
   @override
   State<HomeCarouselBanner> createState() => _HomeCarouselBannerState();
 
-  /// 静态方法：供外部（如首页下拉刷新）主动触发刷新
+  /// 静态方法：供外部主动触发刷新
   static Future<void> refreshBanner() async {
     await _HomeCarouselBannerState._currentInstance?._loadBannerData();
   }
@@ -31,10 +30,75 @@ class HomeCarouselBanner extends StatefulWidget {
 class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
   static _HomeCarouselBannerState? _currentInstance;
 
-  List<VideoInfo> _bannerItems = [];
-  bool _isLoading = true;
-  bool _hasError = false;
+  // 默认精选电影推荐（确保无论网络快慢或豆瓣反爬，首屏轮播永远秒开、立即可见）
+  static final List<VideoInfo> _defaultPresetItems = [
+    VideoInfo(
+      id: '35465232',
+      source: 'douban',
+      title: '沙丘2',
+      sourceName: '豆瓣电影',
+      year: '2024',
+      cover: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2904354390.jpg',
+      index: 1,
+      totalEpisodes: 1,
+      playTime: 0,
+      totalTime: 0,
+      saveTime: DateTime.now().millisecondsSinceEpoch,
+      searchTitle: '沙丘2',
+      doubanId: '35465232',
+      rate: '8.3',
+    ),
+    VideoInfo(
+      id: '35588327',
+      source: 'douban',
+      title: '奥本海默',
+      sourceName: '豆瓣电影',
+      year: '2023',
+      cover: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2896328227.jpg',
+      index: 1,
+      totalEpisodes: 1,
+      playTime: 0,
+      totalTime: 0,
+      saveTime: DateTime.now().millisecondsSinceEpoch,
+      searchTitle: '奥本海默',
+      doubanId: '35588327',
+      rate: '8.8',
+    ),
+    VideoInfo(
+      id: '1889243',
+      source: 'douban',
+      title: '星际穿越',
+      sourceName: '豆瓣电影',
+      year: '2014',
+      cover: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2614988097.jpg',
+      index: 1,
+      totalEpisodes: 1,
+      playTime: 0,
+      totalTime: 0,
+      saveTime: DateTime.now().millisecondsSinceEpoch,
+      searchTitle: '星际穿越',
+      doubanId: '1889243',
+      rate: '9.4',
+    ),
+    VideoInfo(
+      id: '36173648',
+      source: 'douban',
+      title: '周处除三害',
+      sourceName: '豆瓣电影',
+      year: '2024',
+      cover: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2904888249.jpg',
+      index: 1,
+      totalEpisodes: 1,
+      playTime: 0,
+      totalTime: 0,
+      saveTime: DateTime.now().millisecondsSinceEpoch,
+      searchTitle: '周处除三害',
+      doubanId: '36173648',
+      rate: '8.1',
+    ),
+  ];
 
+  late List<VideoInfo> _bannerItems;
   late final PageController _pageController;
   int _currentIndex = 0;
   Timer? _autoScrollTimer;
@@ -44,8 +108,16 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
   void initState() {
     super.initState();
     _currentInstance = this;
+    _bannerItems = List.from(_defaultPresetItems);
     _pageController = PageController(initialPage: 0);
-    _loadBannerData();
+
+    // 启动自动轮播
+    _startAutoScroll();
+
+    // 延迟异步拉取实时豆瓣热门推荐更新数据
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadBannerData();
+    });
   }
 
   @override
@@ -80,64 +152,39 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     _autoScrollTimer = null;
   }
 
-  /// 加载轮播数据（提取豆瓣热门精选推荐）
+  /// 尝试从豆瓣拉取最新热门电影
   Future<void> _loadBannerData() async {
     if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-    });
 
     try {
       final moviesResult = await DoubanService.getHotMovies(context);
       if (!mounted) return;
 
-      final List<VideoInfo> items = [];
       if (moviesResult.success && moviesResult.data != null && moviesResult.data!.isNotEmpty) {
-        // 取前 6 部热门电影作为首屏推荐
-        items.addAll(
-          moviesResult.data!
-              .take(6)
-              .map((DoubanMovie movie) => movie.toVideoInfo()),
-        );
-      }
+        final List<VideoInfo> items = moviesResult.data!
+            .take(6)
+            .map((DoubanMovie movie) => movie.toVideoInfo())
+            .toList();
 
-      if (mounted) {
-        setState(() {
-          _bannerItems = items;
-          _isLoading = false;
-          _hasError = items.isEmpty;
-        });
-
-        if (items.isNotEmpty) {
+        if (items.isNotEmpty && mounted) {
+          setState(() {
+            _bannerItems = items;
+            _currentIndex = 0;
+          });
           _startAutoScroll();
         }
       }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-        });
-      }
+    } catch (_) {
+      // 网络或接口异常时，保留兜底精选数据，UI保持稳定呈现
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return _buildSkeleton(context);
-    }
-
-    if (_hasError || _bannerItems.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     return LayoutBuilder(
       builder: (context, constraints) {
-        // 响应式高度：移动端约 190~210dp，桌面或平板端按比例最高 240dp
-        final double height = constraints.maxWidth > 600 ? 240.0 : 190.0;
+        // 响应式高度：宽屏230dp，竖屏手机195dp
+        final double height = constraints.maxWidth > 600 ? 230.0 : 195.0;
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -191,23 +238,6 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     );
   }
 
-  /// 构建骨架屏占位
-  Widget _buildSkeleton(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double height = constraints.maxWidth > 600 ? 240.0 : 190.0;
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: ShimmerEffect(
-            width: double.infinity,
-            height: height,
-            borderRadius: BorderRadius.circular(16),
-          ),
-        );
-      },
-    );
-  }
-
   /// 构建单个轮播卡片
   Widget _buildBannerCard(
     BuildContext context,
@@ -234,7 +264,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
               // 1. 底层高斯模糊海报背景
               _buildBlurredBackground(videoInfo.cover, videoInfo.source),
 
-              // 2. 暗色渐变蒙层，保证文字前景清晰立体
+              // 2. 暗色渐变蒙层
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -262,7 +292,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
                 ),
               ),
 
-              // 3. 前景内容区：左侧文本与播放按钮，右侧清晰海报
+              // 3. 前景内容区
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
                 child: Row(
@@ -295,18 +325,18 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
                                     ),
                                   ],
                                 ),
-                                child: Row(
+                                child: const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.local_fire_department_rounded,
                                       size: 13,
                                       color: Colors.white,
                                     ),
-                                    const SizedBox(width: 3),
+                                    SizedBox(width: 3),
                                     Text(
                                       '热映精选',
-                                      style: FontUtils.poppins(
+                                      style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,
@@ -341,10 +371,10 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
                                       const SizedBox(width: 2),
                                       Text(
                                         videoInfo.rate!,
-                                        style: FontUtils.poppins(
+                                        style: const TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
-                                          color: const Color(0xFFFFB800),
+                                          color: Color(0xFFFFB800),
                                         ),
                                       ),
                                     ],
@@ -360,7 +390,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
                             videoInfo.title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: FontUtils.poppins(
+                            style: TextStyle(
                               fontSize: height > 200 ? 18 : 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -373,7 +403,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
                           if (videoInfo.year.isNotEmpty)
                             Text(
                               '${videoInfo.year} · 豆瓣热推',
-                              style: FontUtils.poppins(
+                              style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.white.withOpacity(0.7),
                               ),
@@ -397,18 +427,18 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
                                 ),
                               ],
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.play_arrow_rounded,
                                   size: 15,
                                   color: Colors.white,
                                 ),
-                                const SizedBox(width: 4),
+                                SizedBox(width: 4),
                                 Text(
                                   '立即播放',
-                                  style: FontUtils.poppins(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.white,
