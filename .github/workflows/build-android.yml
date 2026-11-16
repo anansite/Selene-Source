@@ -83,11 +83,19 @@ jobs:
 
       - name: Build release APK
         run: |
+          set -o pipefail
           if [ "${{ inputs.split_per_abi }}" = "false" ]; then
-            flutter build apk --release -v
+            flutter build apk --release 2>&1 | tee build.log
           else
-            flutter build apk --release --split-per-abi -v
+            flutter build apk --release --split-per-abi 2>&1 | tee build.log
           fi
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-failure-log
+          path: build.log
 
       - name: Collect artifacts
         run: |
