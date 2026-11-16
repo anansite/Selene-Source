@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
@@ -386,7 +385,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     );
   }
 
-  /// 单个全屏宽海报 Slide：采用电影原版海报 + 沉浸式高斯模糊氛围底色复合渲染
+  /// 单个全屏宽海报 Slide：全画幅高清海报无缝通顶铺展，左右完整清晰无虚化
   Widget _buildBackdropSlide(
     BuildContext context,
     HeroBannerItem item,
@@ -394,68 +393,27 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     ThemeService themeService,
   ) {
     final headers = getImageRequestHeaders(item.backdrop, 'douban');
+    final String imageUrl =
+        item.backdrop.isNotEmpty ? item.backdrop : item.cover;
 
     return GestureDetector(
       onTap: () => widget.onVideoTap?.call(item.toVideoInfo()),
       behavior: HitTestBehavior.opaque,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 1. 底层：沉浸式高斯模糊氛围底色（全屏铺满，取电影真实色调与光影）
-          Positioned.fill(
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-              child: Transform.scale(
-                scale: 1.2,
-                child: CachedNetworkImage(
-                  imageUrl: item.backdrop,
-                  httpHeaders: headers,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => Container(
-                    color: themeService.isDarkMode
-                        ? const Color(0xFF1B1B1F)
-                        : const Color(0xFFE2E8F0),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // 2. 右侧前景大图：保持电影原版比例与高清画质，向左平滑羽化渐变融合
-          Positioned(
-            top: 0,
-            right: 0,
-            bottom: 0,
-            width: MediaQuery.of(context).size.width * 0.68,
-            child: ShaderMask(
-              shaderCallback: (Rect bounds) {
-                return const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  stops: [0.0, 0.35, 1.0],
-                  colors: [
-                    Colors.transparent,
-                    Colors.black54,
-                    Colors.black,
-                  ],
-                ).createShader(bounds);
-              },
-              blendMode: BlendMode.dstIn,
-              child: CachedNetworkImage(
-                imageUrl: item.cover,
-                httpHeaders: headers,
-                fit: BoxFit.cover,
-                alignment: Alignment.topCenter,
-                placeholder: (context, url) => Container(
-                  color: Colors.transparent,
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.transparent,
-                ),
-              ),
-            ),
-          ),
-        ],
+      child: CachedNetworkImage(
+        imageUrl: imageUrl,
+        httpHeaders: headers,
+        fit: BoxFit.cover,
+        alignment: Alignment.topCenter,
+        placeholder: (context, url) => Container(
+          color: themeService.isDarkMode
+              ? const Color(0xFF1B1B1F)
+              : const Color(0xFFE2E8F0),
+        ),
+        errorWidget: (context, url, error) => Container(
+          color: themeService.isDarkMode
+              ? const Color(0xFF1B1B1F)
+              : const Color(0xFFE2E8F0),
+        ),
       ),
     );
   }
