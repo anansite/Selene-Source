@@ -152,18 +152,26 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     ),
   ];
 
+  static const int _kLoopMultiplier = 10000;
+
   late List<HeroBannerItem> _items;
   late final PageController _pageController;
   int _currentIndex = 0;
   Timer? _autoScrollTimer;
   bool _isUserInteracting = false;
 
+  int _getInitialPage() {
+    if (_items.isEmpty) return 0;
+    final int half = _kLoopMultiplier ~/ 2;
+    return half - (half % _items.length);
+  }
+
   @override
   void initState() {
     super.initState();
     _currentInstance = this;
     _items = List.from(_curatedItems);
-    _pageController = PageController(initialPage: 0);
+    _pageController = PageController(initialPage: _getInitialPage());
 
     // 启动自动轮播
     _startAutoScroll();
@@ -190,9 +198,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
 
     _autoScrollTimer = Timer.periodic(const Duration(seconds: 6), (_) {
       if (!mounted || _isUserInteracting || !_pageController.hasClients) return;
-      final nextPage = (_currentIndex + 1) % _items.length;
-      _pageController.animateToPage(
-        nextPage,
+      _pageController.nextPage(
         duration: const Duration(milliseconds: 700),
         curve: Curves.easeInOutCubic,
       );
@@ -260,6 +266,9 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
             _items = dynamicItems;
             _currentIndex = 0;
           });
+          if (_pageController.hasClients) {
+            _pageController.jumpToPage(_getInitialPage());
+          }
           _startAutoScroll();
           return;
         }
@@ -273,6 +282,9 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
         _items = List.from(_curatedItems);
         _currentIndex = 0;
       });
+      if (_pageController.hasClients) {
+        _pageController.jumpToPage(_getInitialPage());
+      }
       _startAutoScroll();
     }
   }
@@ -303,16 +315,18 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // 1. PageView 全屏宽剧照轮播
+            // 1. PageView 全屏宽剧照轮播（无限循环左右平滑滑动，不再有死角边界）
             PageView.builder(
               controller: _pageController,
-              itemCount: _items.length,
-              onPageChanged: (index) {
+              onPageChanged: (rawIndex) {
+                if (_items.isEmpty) return;
                 setState(() {
-                  _currentIndex = index;
+                  _currentIndex = rawIndex % _items.length;
                 });
               },
-              itemBuilder: (context, index) {
+              itemBuilder: (context, rawIndex) {
+                if (_items.isEmpty) return const SizedBox.shrink();
+                final index = rawIndex % _items.length;
                 return _buildBackdropSlide(
                     context, _items[index], bannerHeight, themeService);
               },
@@ -570,7 +584,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     );
   }
 
-  /// 极简纤细胶囊线指示器（Active: 20x4 圆角短条；Inactive: 6x4 微点，自适应主题）
+  /// 极简纤细胶囊线指示器（Active: 20x4 圆角短条；Inactive: 6x4 微点，自适应主题，支持点击切换）
   Widget _buildSlimPageIndicator(ThemeService themeService) {
     final bool isDark = themeService.isDarkMode;
     final Color activeColor = isDark ? Colors.white : const Color(0xFF0F172A);
@@ -581,24 +595,41 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(_items.length, (index) {
         final bool isActive = index == _currentIndex;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          margin: const EdgeInsets.symmetric(horizontal: 2.5),
-          width: isActive ? 20.0 : 6.0,
-          height: 4.0,
-          decoration: BoxDecoration(
-            color: isActive ? activeColor : inactiveColor,
-            borderRadius: BorderRadius.circular(2.0),
-            boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: activeColor.withOpacity(0.4),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ]
-                : null,
+        return GestureDetector(
+          onTap: () {
+            if (!_pageController.hasClients || _items.isEmpty) return;
+            final currentRaw =
+                _pageController.page?.round() ?? _pageController.initialPage;
+            final currentMod = currentRaw % _items.length;
+            final diff = index - currentMod;
+            _pageController.animateToPage(
+              currentRaw + diff,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOutCubic,
+            );
+          },
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 4.0),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              width: isActive ? 20.0 : 6.0,
+              height: 4.0,
+              decoration: BoxDecoration(
+                color: isActive ? activeColor : inactiveColor,
+                borderRadius: BorderRadius.circular(2.0),
+                boxShadow: isActive
+                    ? [
+                        BoxShadow(
+                          color: activeColor.withOpacity(0.4),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ]
+                    : null,
+              ),
+            ),
           ),
         );
       }),
