@@ -22,6 +22,7 @@ concurrency:
 jobs:
   android:
     name: Build Android APK
+    # ubuntu-latest 已内置 Android SDK / cmdline-tools，无需 android-actions/setup-android
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,9 +34,6 @@ jobs:
           distribution: zulu
           java-version: '21'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Cache NDK
         id: cache-ndk
         uses: actions/cache@v4
@@ -43,9 +41,15 @@ jobs:
           path: ${{ env.ANDROID_HOME }}/ndk/29.0.14033849
           key: ${{ runner.os }}-ndk-29.0.14033849
 
-      - name: Install NDK
-        if: steps.cache-ndk.outputs.cache-hit != 'true'
-        run: echo "y" | sdkmanager --install "ndk;29.0.14033849"
+      - name: Prepare Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          sdkmanager --version
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          if [ ! -d "$ANDROID_HOME/ndk/29.0.14033849" ]; then
+            echo "installing NDK 29.0.14033849..."
+            yes | sdkmanager --install "ndk;29.0.14033849" || echo "NDK 预装失败，交给 AGP 自动下载"
+          fi
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
