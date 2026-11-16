@@ -34,11 +34,12 @@ android {
     }
 
     val keystorePropertiesFile = rootProject.file("key.properties")
-    val hasSigningConfig = keystorePropertiesFile.exists()
+    val defaultReleaseKeystore = file("selene-release.jks")
+    val hasSigningConfig = keystorePropertiesFile.exists() || defaultReleaseKeystore.exists()
 
     signingConfigs {
-        if (hasSigningConfig) {
-            create("release") {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
                 val properties = Properties()
                 properties.load(FileInputStream(keystorePropertiesFile))
                 
@@ -46,6 +47,11 @@ android {
                 storePassword = properties.getProperty("storePassword")
                 keyAlias = properties.getProperty("keyAlias")
                 keyPassword = properties.getProperty("keyPassword")
+            } else if (defaultReleaseKeystore.exists()) {
+                storeFile = defaultReleaseKeystore
+                storePassword = "selenepassword"
+                keyAlias = "selene"
+                keyPassword = "selenepassword"
             }
         }
     }

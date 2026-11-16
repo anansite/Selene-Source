@@ -281,8 +281,8 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
   Widget build(BuildContext context) {
     final themeService = Provider.of<ThemeService>(context);
     final screenHeight = MediaQuery.of(context).size.height;
-    // 沉浸式高度：约占屏幕高度 44%~48%
-    final double bannerHeight = (screenHeight * 0.45).clamp(320.0, 420.0);
+    // 沉浸式巨幕高度：约占屏幕高度 56%~60%，给海报大片提供更加开阔大气的视觉展示空间
+    final double bannerHeight = (screenHeight * 0.58).clamp(460.0, 580.0);
 
     return SizedBox(
       width: double.infinity,
