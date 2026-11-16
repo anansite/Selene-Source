@@ -159,51 +159,54 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// 构建首页内容（带 PageView 支持滑动切换）
   Widget _buildHomeContentWithPageView() {
-    return Column(
+    return Stack(
       children: [
-        // 顶部导航栏
-        TopTabSwitcher(
-          selectedTab: _selectedTopTab,
-          onTabChanged: _onTopTabChanged,
-        ),
         // PageView 支持左右滑动
-        Expanded(
-          child: PageView(
-            controller: _pageController,
-            onPageChanged: (index) {
-              if (!mounted) return;
+        PageView(
+          controller: _pageController,
+          onPageChanged: (index) {
+            if (!mounted) return;
 
-              // 根据页面索引更新选中的标签
-              String newTab;
-              switch (index) {
-                case 0:
-                  newTab = '首页';
-                  break;
-                case 1:
-                  newTab = '播放历史';
-                  break;
-                case 2:
-                  newTab = '收藏夹';
-                  break;
-                default:
-                  newTab = '首页';
-              }
+            // 根据页面索引更新选中的标签
+            String newTab;
+            switch (index) {
+              case 0:
+                newTab = '首页';
+                break;
+              case 1:
+                newTab = '播放历史';
+                break;
+              case 2:
+                newTab = '收藏夹';
+                break;
+              default:
+                newTab = '首页';
+            }
 
-              // 只在标签真正改变时更新状态
-              if (_selectedTopTab != newTab) {
-                setState(() {
-                  _selectedTopTab = newTab;
-                });
-              }
-            },
-            children: [
-              // 首页内容
-              _buildHomeTabContent(),
-              // 播放历史内容
-              _buildHistoryTabContent(),
-              // 收藏夹内容
-              _buildFavoritesTabContent(),
-            ],
+            // 只在标签真正改变时更新状态
+            if (_selectedTopTab != newTab) {
+              setState(() {
+                _selectedTopTab = newTab;
+              });
+            }
+          },
+          children: [
+            // 首页内容
+            _buildHomeTabContent(),
+            // 播放历史内容
+            _buildHistoryTabContent(),
+            // 收藏夹内容
+            _buildFavoritesTabContent(),
+          ],
+        ),
+        // 顶部导航栏浮动在最上层，背景磨砂半透明，与首屏大图沉浸交融
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: TopTabSwitcher(
+            selectedTab: _selectedTopTab,
+            onTabChanged: _onTopTabChanged,
           ),
         ),
       ],
@@ -219,8 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 8),
-            // 首页首屏轮播 Banner
+            // 首页首屏沉浸式 Hero 轮播 Banner（无顶边距，背景延展至顶部导航下方）
             HomeCarouselBanner(
               onVideoTap: (videoInfo) {
                 _navigateToPlayer(
@@ -354,7 +356,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 4),
+            const SizedBox(height: 52),
             HistoryGrid(
               onVideoTap: _onVideoTap,
               onGlobalMenuAction: _onGlobalMenuAction,
@@ -374,7 +376,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 4),
+            const SizedBox(height: 52),
             FavoritesGrid(
               onVideoTap: _onVideoTap,
               onGlobalMenuAction:

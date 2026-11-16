@@ -89,14 +89,25 @@ class _TopTabSwitcherState extends State<TopTabSwitcher>
       builder: (context, themeService, child) {
         return Center(
           child: Container(
-            margin: const EdgeInsets.only(top: 20, bottom: 8),
+            margin: const EdgeInsets.only(top: 10, bottom: 8),
             width: 240, // 增加宽度以容纳三个选项
             height: 32,
             decoration: BoxDecoration(
               color: themeService.isDarkMode
-                  ? const Color(0xFF333333)
-                  : const Color(0xFFe0e0e0),
+                  ? Colors.black.withOpacity(0.42)
+                  : const Color(0xFFe0e0e0).withOpacity(0.75),
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.15),
+                width: 0.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.20),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Stack(
               children: [
