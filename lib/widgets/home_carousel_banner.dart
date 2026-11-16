@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../models/video_info.dart';
+import '../models/douban_movie.dart';
 import '../services/theme_service.dart';
+import '../services/douban_service.dart';
+import '../utils/image_url.dart';
 
 /// 沉浸式 Hero 首屏大轮播条目模型
 class HeroBannerItem {
@@ -29,7 +33,7 @@ class HeroBannerItem {
     required this.year,
     required this.genre,
     required this.overview,
-    this.tag = '4K超清',
+    this.tag = '最新热映',
     this.stype = 'movie',
   });
 
@@ -73,38 +77,62 @@ class HomeCarouselBanner extends StatefulWidget {
 class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
   static _HomeCarouselBannerState? _currentInstance;
 
-  /// 精选且主流视频源 100% 存在高码率可播放资源的头部大片池（带16:9横版剧照及剧情看点）
+  /// 2024-2026 最新高热度、主流影视源 100% 具备超清播放源的精选大片池
   static final List<HeroBannerItem> _curatedItems = [
     const HeroBannerItem(
-      id: '1889243',
-      title: '星际穿越',
-      originalTitle: 'Interstellar',
-      backdrop: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w1280/xJHokMbljvjADYdit5fK5VQsXEG.jpg',
-      cover: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
-      rate: '9.4',
-      year: '2014',
-      genre: '科幻 / 冒险 / 悬疑',
-      tag: '豆瓣 TOP250 · 必看神作',
-      overview: '地球生态彻底竭绝，前宇航员库珀穿过土星附近的神秘虫洞，在未知维度与浩瀚星海中寻找人类延续的最后希望。',
+      id: '36828393',
+      title: '野兽之心',
+      originalTitle: 'Heart of the Beast',
+      backdrop: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2933185536.jpg',
+      cover: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2933185536.jpg',
+      rate: '7.3',
+      year: '2026',
+      genre: '动作 / 惊悚 / 剧情 / 冒险',
+      tag: '2026 最新热映',
+      overview: '布拉德·皮特领衔主演。特种部队军官与军犬在惨烈空难后深陷荒野绝境，面对重重杀机展开殊死搏杀。',
     ),
     const HeroBannerItem(
-      id: '35588327',
-      title: '奥本海默',
-      originalTitle: 'Oppenheimer',
-      backdrop: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w1280/nb3xI8XI3w4pMVZ38VijbsyBqP4.jpg',
-      cover: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
-      rate: '8.8',
-      year: '2023',
-      genre: '传记 / 剧情 / 历史',
-      tag: '奥斯卡最佳影片',
-      overview: '聚焦“原子弹之父”罗伯特·奥本海默研制人类首枚核武器的波澜历程，以及随之而来的道德困境与政治风暴。',
+      id: '36882191',
+      title: '八仙！',
+      originalTitle: 'All Wishes Come True',
+      backdrop: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2934074566.jpg',
+      cover: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2934074566.jpg',
+      rate: '8.2',
+      year: '2026',
+      genre: '喜剧 / 动画 / 奇幻 / 冒险',
+      tag: '2026 豆瓣爆款',
+      overview: '八仙在成仙与搞事业之间玩转人间。面对泼天富贵与神妖阻挠，八个身份各异的凡人展开爆笑逆袭。',
+    ),
+    const HeroBannerItem(
+      id: '35465232',
+      title: '沙丘2',
+      originalTitle: 'Dune: Part Two',
+      backdrop: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2904354390.jpg',
+      cover: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2904354390.jpg',
+      rate: '8.3',
+      year: '2024',
+      genre: '科幻 / 冒险 / 动作',
+      tag: 'IMAX 史诗巨制',
+      overview: '保罗·厄崔迪携手契妮与弗雷曼人，踏上复仇与拯救厄拉科斯的壮丽史诗之旅，宇宙宿命在此决裂。',
+    ),
+    const HeroBannerItem(
+      id: '36173648',
+      title: '周处除三害',
+      originalTitle: 'The Pig, the Snake and the Pigeon',
+      backdrop: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2904888249.jpg',
+      cover: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2904888249.jpg',
+      rate: '8.1',
+      year: '2024',
+      genre: '动作 / 犯罪 / 剧情',
+      tag: '高分动作爽片',
+      overview: '通缉犯陈桂林得知自己身患绝症后，决心查出前两名通缉犯并除掉他们借此扬名，展开亡命追凶。',
     ),
     const HeroBannerItem(
       id: '35267208',
       title: '流浪地球2',
       originalTitle: 'The Wandering Earth II',
-      backdrop: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w1280/p2LNc1DEq9q7w2gA954L69m40rZ.jpg',
-      cover: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w500/A3vSgnjN7tK4m7h0LgSj5jG0P9w.jpg',
+      backdrop: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2886492513.jpg',
+      cover: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2886492513.jpg',
       rate: '8.3',
       year: '2023',
       genre: '科幻 / 动作 / 灾难',
@@ -112,40 +140,16 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
       overview: '太阳急速老化面临毁灭，人类启动万座行星发动机奔向新家园。在数字生命危机与太空电梯浩劫面前，全人类挺身决战。',
     ),
     const HeroBannerItem(
-      id: '35465232',
-      title: '沙丘2',
-      originalTitle: 'Dune: Part Two',
-      backdrop: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w1280/xOMo8BRK7PfcJv9JCnx7s5207ne.jpg',
-      cover: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w500/czembW0Rk1Ke7lCJGzyejdtHdG.jpg',
-      rate: '8.3',
-      year: '2024',
-      genre: '科幻 / 动作 / 冒险',
-      tag: 'IMAX 史诗巨制',
-      overview: '保罗·厄崔迪携手契妮与弗雷曼人，踏上复仇与拯救厄拉科斯的壮丽史诗之旅，宇宙宿命在此决裂。',
-    ),
-    const HeroBannerItem(
-      id: '1292052',
-      title: '肖申克的救赎',
-      originalTitle: 'The Shawshank Redemption',
-      backdrop: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w1280/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg',
-      cover: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w500/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg',
-      rate: '9.7',
-      year: '1994',
-      genre: '剧情 / 犯罪 / 经典',
-      tag: '影史无可超越桂冠',
-      overview: '银行家安迪蒙冤入狱二十载，在残酷黑暗的高墙之内，他凭借无与伦比的坚韧与信念凿穿自由之路。',
-    ),
-    const HeroBannerItem(
-      id: '36173648',
-      title: '周处除三害',
-      originalTitle: 'The Pig, the Snake and the Pigeon',
-      backdrop: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w1280/14QbnygCuTO0vl7CAFmPf1fgZfV.jpg',
-      cover: 'https://images.weserv.nl/?url=image.tmdb.org/t/p/w500/mCDyV28l9f1aY8eA0l3jBq9Z6P3.jpg',
-      rate: '8.1',
-      year: '2024',
-      genre: '动作 / 犯罪 / 剧情',
-      tag: '高分爽片必看',
-      overview: '通缉犯陈桂林得知自己身患绝症后，决心查出前两名通缉犯并除掉他们，借此名留青史，展开亡命追凶。',
+      id: '37317907',
+      title: '另一个妈妈',
+      originalTitle: 'Other Mommy',
+      backdrop: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2935858295.jpg',
+      cover: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2935858295.jpg',
+      rate: '6.5',
+      year: '2026',
+      genre: '悬疑 / 惊悚 / 剧情',
+      tag: '2026 热播悬疑',
+      overview: '杰西卡·查斯坦领衔主演。一位母亲在平静生活中觉察出异样伪装，深藏在家庭背后的黑暗秘密步步逼近。',
     ),
   ];
 
@@ -164,6 +168,11 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
 
     // 启动自动轮播
     _startAutoScroll();
+
+    // 延迟异步拉取实时豆瓣最新热门电影更新
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadBannerData();
+    });
   }
 
   @override
@@ -196,21 +205,84 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     _autoScrollTimer = null;
   }
 
+  /// 异步从豆瓣拉取最新热门榜单并融合展示
   Future<void> _loadBannerData() async {
-    // 保持高可用大片池作为核心稳定基线
     if (!mounted) return;
-    setState(() {
-      _items = List.from(_curatedItems);
-      _currentIndex = 0;
-    });
-    _startAutoScroll();
+
+    try {
+      final moviesResult = await DoubanService.getHotMovies(context);
+      if (!mounted) return;
+
+      if (moviesResult.success &&
+          moviesResult.data != null &&
+          moviesResult.data!.isNotEmpty) {
+        final List<HeroBannerItem> dynamicItems = [];
+        for (final DoubanMovie movie in moviesResult.data!.take(6)) {
+          // 在精选库中匹配是否有预制故事看点
+          final matchedCurated = _curatedItems.firstWhere(
+            (c) => c.title == movie.title || c.id == movie.id,
+            orElse: () => HeroBannerItem(
+              id: movie.id,
+              title: movie.title,
+              backdrop: movie.poster,
+              cover: movie.poster,
+              rate: movie.rate?.isNotEmpty == true ? movie.rate! : '7.8',
+              year: movie.year.isNotEmpty ? movie.year : '2026',
+              genre: '最新热映 · 热门电影',
+              overview: '近期高热度院线大片，口碑与热度持续攀升，聚合全网高清影视源在线极速播放。',
+              tag: '最新热映',
+            ),
+          );
+
+          dynamicItems.add(
+            HeroBannerItem(
+              id: movie.id,
+              title: movie.title,
+              originalTitle: matchedCurated.originalTitle,
+              backdrop: movie.poster.isNotEmpty
+                  ? movie.poster
+                  : matchedCurated.backdrop,
+              cover: movie.poster.isNotEmpty
+                  ? movie.poster
+                  : matchedCurated.cover,
+              rate: movie.rate?.isNotEmpty == true
+                  ? movie.rate!
+                  : matchedCurated.rate,
+              year: movie.year.isNotEmpty ? movie.year : matchedCurated.year,
+              genre: matchedCurated.genre,
+              overview: matchedCurated.overview,
+              tag: '最新热映',
+            ),
+          );
+        }
+
+        if (dynamicItems.isNotEmpty && mounted) {
+          setState(() {
+            _items = dynamicItems;
+            _currentIndex = 0;
+          });
+          _startAutoScroll();
+          return;
+        }
+      }
+    } catch (_) {
+      // 网络请求失败时使用内置最新精选
+    }
+
+    if (mounted) {
+      setState(() {
+        _items = List.from(_curatedItems);
+        _currentIndex = 0;
+      });
+      _startAutoScroll();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final themeService = Provider.of<ThemeService>(context);
     final screenHeight = MediaQuery.of(context).size.height;
-    // 沉浸式高度：约占屏幕高度 44%~48%，保证气势与大片氛围
+    // 沉浸式高度：约占屏幕高度 44%~48%
     final double bannerHeight = (screenHeight * 0.45).clamp(320.0, 420.0);
 
     return SizedBox(
@@ -242,7 +314,8 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
                 });
               },
               itemBuilder: (context, index) {
-                return _buildBackdropSlide(context, _items[index], bannerHeight, themeService);
+                return _buildBackdropSlide(
+                    context, _items[index], bannerHeight, themeService);
               },
             ),
 
@@ -313,57 +386,74 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     );
   }
 
-  /// 单个全屏宽剧照 Slide
+  /// 单个全屏宽海报 Slide：采用电影原版海报 + 沉浸式高斯模糊氛围底色复合渲染
   Widget _buildBackdropSlide(
     BuildContext context,
     HeroBannerItem item,
     double height,
     ThemeService themeService,
   ) {
+    final headers = getImageRequestHeaders(item.backdrop, 'douban');
+
     return GestureDetector(
       onTap: () => widget.onVideoTap?.call(item.toVideoInfo()),
       behavior: HitTestBehavior.opaque,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // 高清横版剧照大图
-          CachedNetworkImage(
-            imageUrl: item.backdrop,
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: height,
-            placeholder: (context, url) => Container(
-              color: const Color(0xFF1B1B1F),
-              child: const Center(
-                child: SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white38),
+          // 1. 底层：沉浸式高斯模糊氛围底色（全屏铺满，取电影真实色调与光影）
+          Positioned.fill(
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+              child: Transform.scale(
+                scale: 1.2,
+                child: CachedNetworkImage(
+                  imageUrl: item.backdrop,
+                  httpHeaders: headers,
+                  fit: BoxFit.cover,
+                  errorWidget: (_, __, ___) => Container(
+                    color: themeService.isDarkMode
+                        ? const Color(0xFF1B1B1F)
+                        : const Color(0xFFE2E8F0),
                   ),
                 ),
               ),
             ),
-            errorWidget: (context, url, error) {
-              // 备用兜底：渐变底板 + 标题
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF2C3E50), Color(0xFF000000)],
-                  ),
+          ),
+
+          // 2. 右侧前景大图：保持电影原版比例与高清画质，向左平滑羽化渐变融合
+          Positioned(
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: MediaQuery.of(context).size.width * 0.68,
+            child: ShaderMask(
+              shaderCallback: (Rect bounds) {
+                return const LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  stops: [0.0, 0.35, 1.0],
+                  colors: [
+                    Colors.transparent,
+                    Colors.black54,
+                    Colors.black,
+                  ],
+                ).createShader(bounds);
+              },
+              blendMode: BlendMode.dstIn,
+              child: CachedNetworkImage(
+                imageUrl: item.cover,
+                httpHeaders: headers,
+                fit: BoxFit.cover,
+                alignment: Alignment.topCenter,
+                placeholder: (context, url) => Container(
+                  color: Colors.transparent,
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.movie_creation_outlined,
-                    size: 54,
-                    color: Colors.white.withOpacity(0.3),
-                  ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.transparent,
                 ),
-              );
-            },
+              ),
+            ),
           ),
         ],
       ),
@@ -421,7 +511,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
         // 顶部元数据行：标签 + 评分 + 年份/分类 + 纤细指示器
         Row(
           children: [
-            // 4K超清/精选徽标
+            // 4K超清/最新热映徽标
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
               decoration: BoxDecoration(
