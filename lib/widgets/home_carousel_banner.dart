@@ -193,21 +193,18 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
 
   /// 构建骨架屏占位
   Widget _buildSkeleton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: AspectRatio(
-        aspectRatio: 16 / 8,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: const ShimmerEffect(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Color(0xFF1E1E1E),
-              ),
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double height = constraints.maxWidth > 600 ? 240.0 : 190.0;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: ShimmerEffect(
+            width: double.infinity,
+            height: height,
+            borderRadius: BorderRadius.circular(16),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
