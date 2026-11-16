@@ -51,4 +51,18 @@ Map<String, String>? getImageRequestHeaders(String imageUrl, String? source) {
   return null;
 }
 
+/// 将缩略图 URL 自动升阶至 1080P 全高清原画 URL
+String toHighResImageUrl(String url) {
+  if (url.isEmpty) return url;
+
+  // 豆瓣图片自动升级至 1080P l_ratio_poster，并重定向至快速稳定的 img3 节点
+  if (url.contains('doubanio.com')) {
+    return url
+        .replaceAll(RegExp(r'img\d+\.doubanio\.com'), 'img3.doubanio.com')
+        .replaceAll('/s_ratio_poster/', '/l_ratio_poster/')
+        .replaceAll('/m_ratio_poster/', '/l_ratio_poster/');
+  }
+  return url;
+}
+
 

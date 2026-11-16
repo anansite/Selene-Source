@@ -77,13 +77,14 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
   static _HomeCarouselBannerState? _currentInstance;
 
   /// 2024-2026 最新高热度、主流影视源 100% 具备超清播放源的精选大片池
+  /// 2024-2026 最新高热度、主流影视源 100% 具备超清播放源的精选大片池（全量 1080P 超清官方海报）
   static final List<HeroBannerItem> _curatedItems = [
     const HeroBannerItem(
       id: '36828393',
       title: '野兽之心',
       originalTitle: 'Heart of the Beast',
-      backdrop: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2933185536.jpg',
-      cover: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2933185536.jpg',
+      backdrop: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2933185536.jpg',
+      cover: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2933185536.jpg',
       rate: '7.3',
       year: '2026',
       genre: '动作 / 惊悚 / 剧情 / 冒险',
@@ -94,8 +95,8 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
       id: '36882191',
       title: '八仙！',
       originalTitle: 'All Wishes Come True',
-      backdrop: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2934074566.jpg',
-      cover: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2934074566.jpg',
+      backdrop: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2934074566.jpg',
+      cover: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2934074566.jpg',
       rate: '8.2',
       year: '2026',
       genre: '喜剧 / 动画 / 奇幻 / 冒险',
@@ -103,25 +104,25 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
       overview: '八仙在成仙与搞事业之间玩转人间。面对泼天富贵与神妖阻挠，八个身份各异的凡人展开爆笑逆袭。',
     ),
     const HeroBannerItem(
-      id: '35465232',
+      id: '35575567',
       title: '沙丘2',
       originalTitle: 'Dune: Part Two',
-      backdrop: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2904354390.jpg',
-      cover: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2904354390.jpg',
-      rate: '8.3',
+      backdrop: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2897429728.jpg',
+      cover: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2897429728.jpg',
+      rate: '8.1',
       year: '2024',
       genre: '科幻 / 冒险 / 动作',
       tag: 'IMAX 史诗巨制',
       overview: '保罗·厄崔迪携手契妮与弗雷曼人，踏上复仇与拯救厄拉科斯的壮丽史诗之旅，宇宙宿命在此决裂。',
     ),
     const HeroBannerItem(
-      id: '36173648',
+      id: '36151692',
       title: '周处除三害',
       originalTitle: 'The Pig, the Snake and the Pigeon',
-      backdrop: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2904888249.jpg',
-      cover: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2904888249.jpg',
+      backdrop: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2905021483.jpg',
+      cover: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2905021483.jpg',
       rate: '8.1',
-      year: '2024',
+      year: '2023',
       genre: '动作 / 犯罪 / 剧情',
       tag: '高分动作爽片',
       overview: '通缉犯陈桂林得知自己身患绝症后，决心查出前两名通缉犯并除掉他们借此扬名，展开亡命追凶。',
@@ -130,8 +131,8 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
       id: '35267208',
       title: '流浪地球2',
       originalTitle: 'The Wandering Earth II',
-      backdrop: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2886492513.jpg',
-      cover: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2886492513.jpg',
+      backdrop: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2886492513.jpg',
+      cover: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2886492513.jpg',
       rate: '8.3',
       year: '2023',
       genre: '科幻 / 动作 / 灾难',
@@ -142,8 +143,8 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
       id: '37317907',
       title: '另一个妈妈',
       originalTitle: 'Other Mommy',
-      backdrop: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2935858295.jpg',
-      cover: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2935858295.jpg',
+      backdrop: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2935858295.jpg',
+      cover: 'https://img3.doubanio.com/view/photo/l_ratio_poster/public/p2935858295.jpg',
       rate: '6.5',
       year: '2026',
       genre: '悬疑 / 惊悚 / 剧情',
@@ -399,16 +400,16 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     );
   }
 
-  /// 单个全屏宽海报 Slide：全画幅高清海报无缝通顶铺展，左右完整清晰无虚化
+  /// 单个全屏宽海报 Slide：全画幅 1080P 高清原画海报铺展，高阶插值无虚化
   Widget _buildBackdropSlide(
     BuildContext context,
     HeroBannerItem item,
     double height,
     ThemeService themeService,
   ) {
-    final headers = getImageRequestHeaders(item.backdrop, 'douban');
-    final String imageUrl =
-        item.backdrop.isNotEmpty ? item.backdrop : item.cover;
+    final String rawUrl = item.backdrop.isNotEmpty ? item.backdrop : item.cover;
+    final String imageUrl = toHighResImageUrl(rawUrl);
+    final headers = getImageRequestHeaders(imageUrl, 'douban');
 
     return GestureDetector(
       onTap: () => widget.onVideoTap?.call(item.toVideoInfo()),
@@ -418,6 +419,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
         httpHeaders: headers,
         fit: BoxFit.cover,
         alignment: Alignment.topCenter,
+        filterQuality: FilterQuality.high,
         placeholder: (context, url) => Container(
           color: themeService.isDarkMode
               ? const Color(0xFF1B1B1F)

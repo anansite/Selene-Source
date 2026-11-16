@@ -293,12 +293,12 @@ class DoubanMovie {
 
   /// 从JSON创建DoubanMovie实例
   factory DoubanMovie.fromJson(Map<String, dynamic> json) {
-    // 处理poster字段，优先使用normal，其次large
+    // 处理poster字段，优先使用高清large海报
     String poster = '';
     if (json['pic'] != null) {
       final pic = json['pic'] as Map<String, dynamic>?;
-      poster = pic?['normal']?.toString() ?? 
-               pic?['large']?.toString() ?? '';
+      poster = pic?['large']?.toString() ??
+               pic?['normal']?.toString() ?? '';
     }
     
     // 处理rating字段
