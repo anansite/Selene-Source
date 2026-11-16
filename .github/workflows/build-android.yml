@@ -78,12 +78,15 @@ jobs:
       - name: Pub get
         run: flutter pub get
 
+      - name: Flutter analyze
+        run: flutter analyze || true
+
       - name: Build release APK
         run: |
           if [ "${{ inputs.split_per_abi }}" = "false" ]; then
-            flutter build apk --release
+            flutter build apk --release -v
           else
-            flutter build apk --release --split-per-abi
+            flutter build apk --release --split-per-abi -v
           fi
 
       - name: Collect artifacts

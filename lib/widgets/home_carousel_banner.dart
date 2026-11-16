@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/douban_movie.dart';
 import '../models/video_info.dart';
+import '../services/api_service.dart';
 import '../services/douban_service.dart';
 import '../utils/image_url.dart';
 import '../utils/font_utils.dart';
