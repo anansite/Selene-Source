@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../widgets/home_carousel_banner.dart';
 import '../widgets/continue_watching_section.dart';
 import '../widgets/hot_movies_section.dart';
 import '../widgets/hot_tv_section.dart';
@@ -124,6 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       // 调用各个组件的刷新方法
+      // 刷新首页首屏轮播
+      await HomeCarouselBanner.refreshBanner();
+
       // 刷新继续观看组件
       await ContinueWatchingSection.refreshPlayRecords();
 
@@ -216,6 +220,18 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             const SizedBox(height: 8),
+            // 首页首屏轮播 Banner
+            HomeCarouselBanner(
+              onVideoTap: (videoInfo) {
+                _navigateToPlayer(
+                  PlayerScreen(
+                    title: videoInfo.title,
+                    stype: 'movie',
+                    year: videoInfo.year,
+                  ),
+                );
+              },
+            ),
             // 继续观看组件
             ContinueWatchingSection(
               onVideoTap: _onVideoTap,
