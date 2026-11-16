@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:lucide_icons_flutter/lucide_icons_flutter.dart';
 import '../models/douban_movie.dart';
 import '../models/video_info.dart';
 import '../services/douban_service.dart';
@@ -302,8 +301,8 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Icon(
-                                      LucideIcons.flame,
-                                      size: 12,
+                                      Icons.local_fire_department_rounded,
+                                      size: 13,
                                       color: Colors.white,
                                     ),
                                     const SizedBox(width: 3),
@@ -404,11 +403,11 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(
-                                  LucideIcons.play,
-                                  size: 13,
+                                  Icons.play_arrow_rounded,
+                                  size: 15,
                                   color: Colors.white,
                                 ),
-                                const SizedBox(width: 5),
+                                const SizedBox(width: 4),
                                 Text(
                                   '立即播放',
                                   style: FontUtils.poppins(
@@ -500,7 +499,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
             if (url.isEmpty) {
               return Container(
                 color: const Color(0xFF2A2A2A),
-                child: const Icon(LucideIcons.film, color: Colors.white30),
+                child: const Icon(Icons.movie_outlined, color: Colors.white30),
               );
             }
 
@@ -524,7 +523,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
               ),
               errorWidget: (_, __, ___) => Container(
                 color: const Color(0xFF2A2A2A),
-                child: const Icon(LucideIcons.film, color: Colors.white30),
+                child: const Icon(Icons.movie_outlined, color: Colors.white30),
               ),
             );
           },
