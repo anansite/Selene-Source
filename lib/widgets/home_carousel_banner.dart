@@ -274,22 +274,22 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
               bottom: 0,
               left: 0,
               right: 0,
-              height: 220,
+              height: 230,
               child: IgnorePointer(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      stops: const [0.0, 0.45, 0.8, 1.0],
+                      stops: const [0.0, 0.35, 0.68, 1.0],
                       colors: [
                         Colors.transparent,
                         themeService.isDarkMode
-                            ? const Color(0xFF121212).withOpacity(0.5)
-                            : const Color(0xFFF6F8FA).withOpacity(0.6),
+                            ? const Color(0xFF121212).withOpacity(0.50)
+                            : const Color(0xFFF6F8FA).withOpacity(0.70),
                         themeService.isDarkMode
-                            ? const Color(0xFF121212).withOpacity(0.9)
-                            : const Color(0xFFF6F8FA).withOpacity(0.95),
+                            ? const Color(0xFF121212).withOpacity(0.92)
+                            : const Color(0xFFF6F8FA).withOpacity(0.96),
                         themeService.isDarkMode
                             ? const Color(0xFF121212)
                             : const Color(0xFFF6F8FA),
@@ -305,7 +305,7 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
               left: 20,
               right: 20,
               bottom: 16,
-              child: _buildMovieMetaInfo(_items[_currentIndex]),
+              child: _buildMovieMetaInfo(_items[_currentIndex], themeService),
             ),
           ],
         ),
@@ -370,8 +370,50 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     );
   }
 
-  /// 构建左下方电影元数据、徽标与剧情概述
-  Widget _buildMovieMetaInfo(HeroBannerItem item) {
+  /// 构建左下方电影元数据、徽标与剧情概述（支持亮/暗主题自适应超清高对比度）
+  Widget _buildMovieMetaInfo(HeroBannerItem item, ThemeService themeService) {
+    final bool isDark = themeService.isDarkMode;
+
+    // 标题颜色：深色模式纯白；浅色模式深炭黑（对比度高，绝不发灰）
+    final Color titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
+
+    // 看点描述颜色：深色模式明亮白（85%透明度）；浅色模式深灰炭（对比度强）
+    final Color overviewColor =
+        isDark ? Colors.white.withOpacity(0.85) : const Color(0xFF334155);
+
+    // 年份/分类元数据颜色
+    final Color metaColor =
+        isDark ? Colors.white.withOpacity(0.80) : const Color(0xFF64748B);
+
+    // 评分颜色：浅色模式采用加深琥珀金（0xFFD97706），在浅色底上清晰且温润
+    final Color rateColor =
+        isDark ? const Color(0xFFFFB800) : const Color(0xFFD97706);
+
+    // 文字阴影：深色模式为黑影防透底；浅色模式为微白光晕提高字符分离度
+    final List<Shadow> titleShadow = isDark
+        ? const [
+            Shadow(color: Colors.black87, offset: Offset(0, 2), blurRadius: 10)
+          ]
+        : const [
+            Shadow(color: Colors.white, offset: Offset(0, 1), blurRadius: 6)
+          ];
+
+    final List<Shadow> overviewShadow = isDark
+        ? const [
+            Shadow(color: Colors.black87, offset: Offset(0, 1), blurRadius: 6)
+          ]
+        : const [
+            Shadow(color: Colors.white, offset: Offset(0, 1), blurRadius: 4)
+          ];
+
+    final List<Shadow> metaShadow = isDark
+        ? const [
+            Shadow(color: Colors.black87, blurRadius: 4, offset: Offset(0, 1))
+          ]
+        : const [
+            Shadow(color: Colors.white, blurRadius: 4, offset: Offset(0, 1))
+          ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -410,12 +452,12 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
             // 金星评分
             Row(
               children: [
-                const Icon(Icons.star_rounded, size: 16, color: Color(0xFFFFB800)),
+                Icon(Icons.star_rounded, size: 16, color: rateColor),
                 const SizedBox(width: 2),
                 Text(
                   item.rate,
-                  style: const TextStyle(
-                    color: Color(0xFFFFB800),
+                  style: TextStyle(
+                    color: rateColor,
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
                   ),
@@ -431,18 +473,16 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.85),
+                  color: metaColor,
                   fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  shadows: const [
-                    Shadow(color: Colors.black87, blurRadius: 4, offset: Offset(0, 1)),
-                  ],
+                  fontWeight: FontWeight.w500,
+                  shadows: metaShadow,
                 ),
               ),
             ),
 
             // 右侧纤细滑动指示条
-            _buildSlimPageIndicator(),
+            _buildSlimPageIndicator(themeService),
           ],
         ),
         const SizedBox(height: 8),
@@ -452,18 +492,12 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
           item.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: titleColor,
             fontSize: 27,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.8,
-            shadows: [
-              Shadow(
-                color: Colors.black87,
-                offset: Offset(0, 2),
-                blurRadius: 10,
-              ),
-            ],
+            shadows: titleShadow,
           ),
         ),
 
@@ -475,17 +509,12 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.82),
+              color: overviewColor,
               fontSize: 12.5,
               height: 1.38,
               letterSpacing: 0.2,
-              shadows: const [
-                Shadow(
-                  color: Colors.black87,
-                  offset: Offset(0, 1),
-                  blurRadius: 6,
-                ),
-              ],
+              fontWeight: isDark ? FontWeight.w400 : FontWeight.w500,
+              shadows: overviewShadow,
             ),
           ),
         ],
@@ -493,8 +522,13 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
     );
   }
 
-  /// 极简纤细胶囊线指示器（Active: 20x4 白色圆角短条；Inactive: 6x4 微白点）
-  Widget _buildSlimPageIndicator() {
+  /// 极简纤细胶囊线指示器（Active: 20x4 圆角短条；Inactive: 6x4 微点，自适应主题）
+  Widget _buildSlimPageIndicator(ThemeService themeService) {
+    final bool isDark = themeService.isDarkMode;
+    final Color activeColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final Color inactiveColor =
+        isDark ? Colors.white.withOpacity(0.35) : const Color(0xFFCBD5E1);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(_items.length, (index) {
@@ -506,12 +540,12 @@ class _HomeCarouselBannerState extends State<HomeCarouselBanner> {
           width: isActive ? 20.0 : 6.0,
           height: 4.0,
           decoration: BoxDecoration(
-            color: isActive ? Colors.white : Colors.white.withOpacity(0.35),
+            color: isActive ? activeColor : inactiveColor,
             borderRadius: BorderRadius.circular(2.0),
             boxShadow: isActive
                 ? [
                     BoxShadow(
-                      color: Colors.white.withOpacity(0.5),
+                      color: activeColor.withOpacity(0.4),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
