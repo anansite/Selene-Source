@@ -67,6 +67,8 @@ dependencies:
   xml: ^6.5.0
   intl: ^0.20.2
   pip: ^0.0.3
+  # 播放期间保持屏幕常亮（防熄屏），见 lib/widgets/video_player_widget.dart
+  wakelock_plus: ^1.3.1
 
 dev_dependencies:
   flutter_test:
