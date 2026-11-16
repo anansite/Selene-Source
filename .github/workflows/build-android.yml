@@ -92,10 +92,10 @@ jobs:
 
       - name: Upload build log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-failure-log
-          path: build.log
+        run: |
+          tail -n 30 build.log
+          MSG=$(tail -n 25 build.log | sed 's/"/\\"/g' | tr '\n' ' ')
+          echo "::error title=Flutter Build Failed::$MSG"
 
       - name: Collect artifacts
         run: |
