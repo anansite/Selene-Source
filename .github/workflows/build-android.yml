@@ -88,8 +88,14 @@ jobs:
 
       - name: Collect artifacts
         run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1 | tr -d '[:space:]')
+          echo "version: $VERSION"
           mkdir -p dist
-          cp build/app/outputs/flutter-apk/*.apk dist/
+          for f in build/app/outputs/flutter-apk/*.apk; do
+            base=$(basename "$f")
+            abi=$(echo "$base" | sed -E 's/^app-(.*)-release\.apk$/\1/')
+            cp "$f" "dist/selene-${VERSION}-${abi}.apk"
+          done
           ls -lh dist
 
       - name: Upload artifacts
