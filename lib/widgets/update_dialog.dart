@@ -196,8 +196,9 @@ class UpdateDialog extends StatelessWidget {
                         height: 44,
                         child: ElevatedButton.icon(
                           onPressed: () async {
-                            final url = VersionService.getReleaseUrl(
-                                versionInfo.latestVersion);
+                            final url = versionInfo.downloadUrl ??
+                                VersionService.getReleaseUrl(
+                                    versionInfo.latestVersion);
                             final uri = Uri.parse(url);
                             if (await canLaunchUrl(uri)) {
                               await launchUrl(uri,

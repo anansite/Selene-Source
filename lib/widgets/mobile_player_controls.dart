@@ -215,6 +215,11 @@ class _MobilePlayerControlsState extends State<MobilePlayerControls> {
     }
   }
 
+  void _onDoubleTap() {
+    if (_isLocked) return;
+    _togglePlayPause();
+  }
+
   void _onLongPressStart(LongPressStartDetails details) {
     if (_isLocked || widget.live || !_isPlaying) return;
     setState(() {
@@ -547,6 +552,7 @@ class _MobilePlayerControlsState extends State<MobilePlayerControls> {
               flex: 1,
               child: GestureDetector(
                 onTap: _toggleControlsVisibility,
+                onDoubleTap: _onDoubleTap,
                 onLongPressStart: _onLongPressStart,
                 onLongPressEnd: _onLongPressEnd,
                 onLongPressCancel: () {
@@ -567,6 +573,7 @@ class _MobilePlayerControlsState extends State<MobilePlayerControls> {
             flex: _isFullscreen ? 2 : 1,
             child: GestureDetector(
               onTap: _toggleControlsVisibility,
+              onDoubleTap: _onDoubleTap,
               onLongPressStart: _onLongPressStart,
               onLongPressEnd: _onLongPressEnd,
               onLongPressCancel: () {
@@ -585,6 +592,7 @@ class _MobilePlayerControlsState extends State<MobilePlayerControls> {
               flex: 1,
               child: GestureDetector(
                 onTap: _toggleControlsVisibility,
+                onDoubleTap: _onDoubleTap,
                 onLongPressStart: _onLongPressStart,
                 onLongPressEnd: _onLongPressEnd,
                 onLongPressCancel: () {
@@ -760,6 +768,7 @@ class _MobilePlayerControlsState extends State<MobilePlayerControls> {
             ignoring: _isLocked || (_isPlaying && !_controlsVisible),
             child: GestureDetector(
               onTap: _togglePlayPause,
+              onDoubleTap: _onDoubleTap,
               child: Icon(
                 _isPlaying ? Icons.pause : Icons.play_arrow,
                 color: Colors.white,

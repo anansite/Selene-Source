@@ -134,3 +134,12 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify LAN Server
+        run: |
+          curl -s \
+            -H "Title: Selene Android ${{ github.ref_name }} Released" \
+            -H "Priority: high" \
+            -H "Tags: package,rocket" \
+            -d "{\"app\": \"selene\", \"version\": \"${{ github.ref_name }}\", \"repo\": \"${{ github.repository }}\"}" \
+            https://ntfy.sh/anan_apps_release_sync || true
